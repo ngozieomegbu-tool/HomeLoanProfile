@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Borrower Profile Tool — Mortgage Readiness</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c87a;
+    --cream: #f9f5ee;
+    --cream-dark: #f0e9d8;
+    --slate: #2c3e50;
+    --muted: #7a8899;
+    --green: #2d7d5f;
+    --red: #c0392b;
+    --amber: #d68910;
+    --white: #ffffff;
+    --border: rgba(201,168,76,0.25);
+    --shadow: 0 4px 24px rgba(13,27,42,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+  /* HEADER */
+  .site-header {
+    background: var(--navy);
+    padding: 28px 40px 22px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    border-bottom: 3px solid var(--gold);
+  }
+  .site-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem; font-weight: 900; color: var(--cream);
+    letter-spacing: .01em; line-height: 1.1;
+  }
+  .site-header h1 span { color: var(--gold); }
+  .site-header .tagline { font-size: .78rem; color: var(--muted); margin-top: 3px; letter-spacing: .06em; text-transform: uppercase; }
+  .header-badge {
+    font-size: .7rem; background: rgba(201,168,76,.15); color: var(--gold-light);
+    border: 1px solid var(--gold); border-radius: 4px; padding: 4px 10px;
+    letter-spacing: .05em; text-transform: uppercase;
+  }
+
+  /* LAYOUT */
+  .main-wrap { max-width: 1100px; margin: 0 auto; padding: 36px 24px 60px; }
+  .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
+  @media(max-width: 760px){ .columns { grid-template-columns: 1fr; } .site-header { flex-direction: column; gap: 10px; } }
+
+  /* SECTION CARDS */
+  .section-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 26px 28px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .section-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700;
+    color: var(--navy); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title .icon { font-size: 1.1rem; }
+  .full-width { grid-column: 1 / -1; }
+
+  /* FORM ROWS */
+  .form-row { margin-bottom: 14px; }
+  .form-row label {
+    display: block; font-size: .78rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px;
+  }
+  .form-row select, .form-row input {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #ddd;
+    border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: .92rem;
+    color: var(--navy); background: var(--cream); transition: border .2s;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8899' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    background-size: 12px;
+  }
+  .form-row input { background-image: none; }
+  .form-row select:focus, .form-row input:focus {
+    outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.13);
+  }
+  .form-row .hint {
+    font-size: .72rem; color: var(--muted); margin-top: 3px; font-style: italic;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* CAPACITY INPUTS */
+  .dollar-wrap { position: relative; }
+  .dollar-wrap::before { content: '$'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .9rem; }
+  .dollar-wrap input { padding-left: 22px; }
+
+  /* CTA BUTTON */
+  .cta-wrap { text-align: center; margin-top: 30px; }
+  .btn-analyze {
+    background: var(--navy); color: var(--gold-light);
+    font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700;
+    border: 2px solid var(--gold); border-radius: 8px;
+    padding: 14px 48px; cursor: pointer; letter-spacing: .04em;
+    transition: background .2s, color .2s, transform .1s;
+    box-shadow: 0 4px 16px rgba(13,27,42,.18);
+  }
+  .btn-analyze:hover { background: var(--gold); color: var(--navy); transform: translateY(-1px); }
+  .btn-analyze:active { transform: translateY(0); }
+
+  /* OUTPUT */
+  #output-section {
+    display: none; margin-top: 36px;
+    animation: fadeUp .4s ease;
+  }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+
+  .output-header {
+    background: var(--navy); color: var(--cream); border-radius: 12px 12px 0 0;
+    padding: 22px 28px; border-bottom: 2px solid var(--gold);
+  }
+  .output-header h2 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--gold-light); }
+  .output-header .sub { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+  .output-meta { display: flex; gap: 24px; margin-top: 10px; flex-wrap: wrap; }
+  .output-meta span { font-size: .78rem; color: var(--muted); }
+  .output-meta strong { color: var(--cream); }
+
+  .output-body { background: var(--white); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; }
+
+  .out-section { padding: 22px 28px; border-bottom: 1px solid var(--cream-dark); }
+  .out-section:last-child { border-bottom: none; }
+  .out-section-title {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--muted); margin-bottom: 12px;
+  }
+
+  /* STATUS BADGE */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px; font-size: .82rem; font-weight: 600;
+  }
+  .status-green { background: #e8f5ee; color: var(--green); border: 1px solid #a8d9bc; }
+  .status-amber { background: #fef7e7; color: var(--amber); border: 1px solid #f5d98a; }
+  .status-red { background: #fceae9; color: var(--red); border: 1px solid #f0a8a3; }
+  .status-navy { background: #e8ecf0; color: var(--slate); border: 1px solid #c0ccd8; }
+
+  /* PROFILE GRID */
+  .profile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .profile-item { background: var(--cream); border-radius: 8px; padding: 12px 14px; }
+  .profile-item .pi-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 3px; }
+  .profile-item .pi-value { font-size: .92rem; font-weight: 500; color: var(--navy); }
+
+  /* FLAGS */
+  .flags-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .flag-chip {
+    font-size: .78rem; padding: 4px 10px; border-radius: 14px;
+    background: #fef7e7; color: var(--amber); border: 1px solid #f5d98a;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .flag-chip.info { background: #e8ecf5; color: var(--slate); border-color: #c0ccd8; }
+
+  /* DOC LIST */
+  .doc-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .doc-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: .88rem; color: var(--navy); padding: 8px 12px;
+    background: var(--cream); border-radius: 7px; border-left: 3px solid var(--gold);
+  }
+  .doc-list li .di { flex-shrink: 0; font-size: 1rem; }
+
+  /* CAPACITY BOXES */
+  .capacity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+  .cap-box { background: var(--cream); border-radius: 10px; padding: 14px 16px; text-align: center; border: 1px solid var(--cream-dark); }
+  .cap-box .cb-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 6px; }
+  .cap-box .cb-value { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--navy); }
+  .cap-box.highlight { background: var(--navy); }
+  .cap-box.highlight .cb-label { color: var(--gold); }
+  .cap-box.highlight .cb-value { color: var(--cream); }
+
+  /* INVESTOR */
+  .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media(max-width: 600px){ .inv-grid { grid-template-columns: 1fr 1fr; } }
+  .inv-box { background: var(--cream); border-radius: 10px; padding: 14px; text-align: center; }
+  .inv-box .ib-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+  .inv-box .ib-value { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+  .dscr-highlight { font-size: 1.6rem !important; }
+  .dscr-green { color: var(--green) !important; }
+  .dscr-red { color: var(--red) !important; }
+
+  /* AMORT TABLE */
+  .amort-wrap { overflow-x: auto; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead tr { background: var(--navy); color: var(--gold-light); }
+  thead th { padding: 9px 12px; text-align: right; font-weight: 600; letter-spacing: .04em; }
+  thead th:first-child { text-align: center; }
+  tbody tr:nth-child(even) { background: var(--cream); }
+  tbody td { padding: 7px 12px; text-align: right; border-bottom: 1px solid #eee; }
+  tbody td:first-child { text-align: center; font-weight: 600; }
+  .amort-toggle { cursor: pointer; color: var(--gold); font-size: .82rem; font-weight: 600; margin-top: 8px; display: inline-block; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    margin-top: 20px; padding: 14px 18px; background: #f0e9d8;
+    border-radius: 8px; font-size: .77rem; color: var(--muted);
+    border-left: 3px solid var(--gold);
+  }
+
+  /* PRINT */
+  @media print {
+    .site-header, .main-wrap > .columns, .cta-wrap { display: none; }
+    #output-section { display: block !important; margin: 0; }
+    .section-card { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <h1>Borrower <span>Profile</span> Tool</h1>
+    <div class="tagline">Real Estate Mortgage Readiness Analyzer</div>
+  </div>
+  <div class="header-badge">Pre-Underwriting Snapshot</div>
+</header>
+
+<div class="main-wrap">
+
+  <div class="columns">
+
+    <!-- BORROWER -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">👤</span> Borrower</div>
+      <div class="form-row">
+        <label>Borrower Type</label>
+        <select id="borrowerType">
+          <option>Individual</option>
+          <option>Joint</option>
+          <option>Entity</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Borrower Help</label>
+        <select id="borrowerHelp">
+          <option>Co-Borrower (on Loan)</option>
+          <option>Non-Occupant Co-Borrower</option>
+          <option selected>Gift Funds Only</option>
+          <option>Guarantor / Co-Signer</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- LEGAL -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">⚖️</span> Legal</div>
+      <div class="form-row">
+        <label>Citizenship Status</label>
+        <select id="citizenship">
+          <option selected>U.S. Citizen</option>
+          <option>Permanent Resident Alien</option>
+          <option>Non-Permanent Resident Alien</option>
+          <option>Foreign National</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Govt Issued ID Available?</label>
+        <select id="govtId">
+          <option selected>Yes</option>
+          <option>No</option>
+          <option>Expired / Renewal</option>
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="form-row">
+          <label>Marital Status</label>
+          <select id="maritalStatus">
+            <option>Single / Unmarried</option>
+            <option selected>Married</option>
+            <option>Separated / Divorced</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Spouse on Loan?</label>
+          <select id="spouseOnLoan">
+            <option selected>Yes</option>
+            <option>No</option>
+            <option>Unsure</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-row">
+          <label>Active Bankruptcy?</label>
+          <select id="activeBK">
+            <option selected>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Discharged BK?</label>
+          <select id="dischargedBK">
+            <option selected>No</option>
+            <option>< 1 Year</option>
+            <option>> 2 Years</option>
+            <option>3+ Years</option>
+            <option>Filed / Terminated</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNERSHIP -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🏠</span> Ownership & Property</div>
+      <div class="form-row">
+        <label>Community Property State?</label>
+        <select id="communityState">
+          <option selected>Wisconsin</option>
+          <option>Arizona</option>
+          <option>Texas</option>
+          <option>California</option>
+          <option>Nevada</option>
+          <option>New Mexico</option>
+          <option>Idaho</option>
+          <option>Louisiana</option>
+          <option>Washington</option>
+          <option>No</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Subject Property Occupancy</label>
+        <select id="occupancy">
+          <option selected>Owner Occupied</option>
+          <option>Non-Owner / Tenant Occupied</option>
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="form-row">
+          <label>Party ≥25% Interest?</label>
+          <select id="interestedParty">
+            <option selected>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Real Estate Owned</label>
+          <select id="reo">
+            <option selected>Rent</option>
+            <option>Own 1 Unit</option>
+            <option>Own 1+ Units</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- INCOME & DOCS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">💼</span> Income, Docs & Credit</div>
+      <div class="two-col">
+        <div class="form-row">
+          <label>Income Type</label>
+          <select id="incomeType">
+            <option selected>Employed</option>
+            <option>Self-Employed</option>
+            <option>Multiple Sources</option>
+            <option>Variable</option>
+            <option>Other (See List)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Income Docs Available?</label>
+          <select id="incomeDocs">
+            <option selected>Yes</option>
+            <option>No</option>
+            <option>Unsure</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-row">
+          <label>Funds for DP / Reserves?</label>
+          <select id="dpFunds">
+            <option selected>Yes</option>
+            <option>No</option>
+            <option>Unsure</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Credit Profile</label>
+          <select id="creditProfile">
+            <option>Exceptional</option>
+            <option>Very Good</option>
+            <option selected>Good</option>
+            <option>Fair</option>
+            <option>Poor</option>
+            <option>No Score / Locked</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Asset Type</label>
+        <select id="assetType">
+          <option selected>Bank Account</option>
+          <option>Certificate of Deposit</option>
+          <option>Stocks / Options</option>
+          <option>Mutual Fund</option>
+          <option>Bonds</option>
+          <option>Retirement (401k, IRA)</option>
+          <option>Bridge Loan Proceeds</option>
+          <option>Individual Development Account</option>
+          <option>Cash Value of Life Insurance</option>
+          <option>Trust Account</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CAPACITY -->
+    <div class="section-card full-width">
+      <div class="section-title"><span class="icon">📊</span> Capacity — Buying Power Calculator</div>
+      <div class="two-col">
+        <div>
+          <div class="form-row">
+            <label>Current Monthly Income</label>
+            <div class="dollar-wrap"><input type="number" id="monthlyIncome" value="4000" min="0"></div>
+          </div>
+          <div class="form-row">
+            <label>Monthly Debt Payments</label>
+            <div class="dollar-wrap"><input type="number" id="monthlyDebt" value="1000" min="0"></div>
+          </div>
+          <div class="form-row">
+            <label>Estimated Housing Payment (P&amp;I)</label>
+            <div class="dollar-wrap"><input type="number" id="housingPayment" value="600" min="0"></div>
+          </div>
+        </div>
+        <div>
+          <div class="form-row">
+            <label>Loan Term (years)</label>
+            <select id="loanTerm">
+              <option value="15">15</option>
+              <option value="25">25</option>
+              <option value="30" selected>30</option>
+              <option value="40">40</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Interest Rate (%)</label>
+            <input type="number" id="interestRate" value="6.5" step="0.125" min="0" max="20">
+          </div>
+          <div class="two-col">
+            <div class="form-row">
+              <label>LTV (%)</label>
+              <input type="number" id="ltv" value="90" step="1" min="50" max="110">
+            </div>
+            <div class="form-row">
+              <label>Closing Costs (%)</label>
+              <input type="number" id="closingCosts" value="3" step="0.5" min="0" max="10">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:4px">
+        <label>Max DTI by Product</label>
+        <select id="maxDTI">
+          <option value="0.55">Special / Exceptional (47%–55%) → 0.55</option>
+          <option value="0.50">Max Conventional &gt;43%–46% → 0.50</option>
+          <option value="0.45">Conventional 40%–43% → 0.45</option>
+          <option value="0.40" selected>Conventional 39% and Below → 0.40</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- INVESTOR / RENTAL -->
+    <div class="section-card full-width">
+      <div class="section-title"><span class="icon">🏢</span> Investor / Rental Analysis <span style="font-family:'DM Sans';font-size:.78rem;color:var(--muted);font-weight:400">(optional)</span></div>
+      <div class="two-col">
+        <div>
+          <div class="form-row"><label>Purchase Price</label><div class="dollar-wrap"><input type="number" id="invPurchase" value="200000"></div></div>
+          <div class="form-row"><label>Monthly Rent</label><div class="dollar-wrap"><input type="number" id="invRent" value="4000"></div></div>
+          <div class="form-row"><label>Vacancy Rate (%)</label><input type="number" id="invVacancy" value="10" step="1" min="0" max="100"></div>
+          <div class="form-row"><label>Annual Taxes</label><div class="dollar-wrap"><input type="number" id="invTaxes" value="3000"></div></div>
+          <div class="form-row"><label>Annual Insurance</label><div class="dollar-wrap"><input type="number" id="invInsurance" value="1200"></div></div>
+        </div>
+        <div>
+          <div class="form-row"><label>Annual Maintenance</label><div class="dollar-wrap"><input type="number" id="invMaint" value="2000"></div></div>
+          <div class="form-row"><label>Property Mgmt (annual)</label><div class="dollar-wrap"><input type="number" id="invMgmt" value="0"></div></div>
+          <div class="form-row"><label>Other Expenses (annual)</label><div class="dollar-wrap"><input type="number" id="invOther" value="1000"></div></div>
+          <div class="form-row"><label>Loan Amount</label><div class="dollar-wrap"><input type="number" id="invLoan" value="150000"></div></div>
+          <div class="form-row"><label>Investor Rate (%)</label><input type="number" id="invRate" value="6.5" step="0.125"></div>
+          <div class="form-row"><label>Loan Term (years)</label><input type="number" id="invTerm" value="30" min="1" max="40"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /columns -->
+
+  <div class="cta-wrap">
+    <button class="btn-analyze" onclick="analyze()">Generate Readiness Report</button>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output-section">
+
+    <div class="output-header">
+      <h2>Real Estate Mortgage Readiness Summary</h2>
+      <div class="sub">Pre-Underwriting Snapshot — Not a Loan Approval</div>
+      <div class="output-meta">
+        <span>Prepared by: <strong>Ngozie Omegbu, NMLS ID #2077106</strong></span>
+        <span>Market: <strong>Wisconsin / Nationwide Referrals</strong></span>
+        <span id="out-date"></span>
+      </div>
+    </div>
+
+    <div class="output-body">
+
+      <!-- PROFILE SUMMARY -->
+      <div class="out-section">
+        <div class="out-section-title">Borrower Profile Snapshot</div>
+        <div class="profile-grid" id="out-profile"></div>
+      </div>
+
+      <!-- ELIGIBILITY -->
+      <div class="out-section">
+        <div class="out-section-title">Eligibility Status</div>
+        <div id="out-eligibility"></div>
+      </div>
+
+      <!-- FLAGS -->
+      <div class="out-section" id="flags-section">
+        <div class="out-section-title">Flags &amp; Considerations</div>
+        <div class="flags-list" id="out-flags"></div>
+      </div>
+
+      <!-- INCOME / CAPACITY -->
+      <div class="out-section">
+        <div class="out-section-title">Income &amp; Capacity</div>
+        <div id="out-income-status"></div>
+        <div class="capacity-grid" id="out-capacity" style="margin-top:14px"></div>
+      </div>
+
+      <!-- DOCUMENT CHECKLIST -->
+      <div class="out-section">
+        <div class="out-section-title">Document Checklist</div>
+        <ul class="doc-list" id="out-docs"></ul>
+      </div>
+
+      <!-- INVESTOR ANALYSIS -->
+      <div class="out-section" id="investor-section">
+        <div class="out-section-title">Investor / Rental Analysis</div>
+        <div class="inv-grid" id="out-investor"></div>
+      </div>
+
+      <!-- AMORTIZATION -->
+      <div class="out-section">
+        <div class="out-section-title">Loan Amortization Preview</div>
+        <div id="out-amort-summary"></div>
+        <span class="amort-toggle" onclick="toggleAmort()">▼ Show Full Amortization Table</span>
+        <div id="amort-table-wrap" style="display:none">
+          <div class="amort-wrap"><table id="amort-table"></table></div>
+        </div>
+      </div>
+
+    </div><!-- /output-body -->
+
+    <div class="disclaimer">
+      * This is a pre-underwriting screening tool for informational purposes only and does not constitute a loan commitment, approval, or guarantee of financing. All figures are estimates. Final loan eligibility is subject to full underwriting, lender guidelines, property appraisal, and applicable law. Consult a licensed mortgage professional before making financial decisions.
+    </div>
+
+  </div><!-- /output-section -->
+
+</div><!-- /main-wrap -->
+
+<script>
+const fmt = (n) => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+const fmtD = (n) => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = (n) => (n*100).toFixed(1) + '%';
+
+function analyze() {
+  // --- INPUTS ---
+  const bType     = document.getElementById('borrowerType').value;
+  const bHelp     = document.getElementById('borrowerHelp').value;
+  const citizen   = document.getElementById('citizenship').value;
+  const govtId    = document.getElementById('govtId').value;
+  const marital   = document.getElementById('maritalStatus').value;
+  const spouseLoan= document.getElementById('spouseOnLoan').value;
+  const activeBK  = document.getElementById('activeBK').value;
+  const dischBK   = document.getElementById('dischargedBK').value;
+  const commState = document.getElementById('communityState').value;
+  const occupancy = document.getElementById('occupancy').value;
+  const intParty  = document.getElementById('interestedParty').value;
+  const reo       = document.getElementById('reo').value;
+  const incType   = document.getElementById('incomeType').value;
+  const incomeDocs= document.getElementById('incomeDocs').value;
+  const dpFunds   = document.getElementById('dpFunds').value;
+  const credit    = document.getElementById('creditProfile').value;
+  const assetType = document.getElementById('assetType').value;
+
+  const monthlyIncome  = parseFloat(document.getElementById('monthlyIncome').value)||0;
+  const monthlyDebt    = parseFloat(document.getElementById('monthlyDebt').value)||0;
+  const housingPayment = parseFloat(document.getElementById('housingPayment').value)||0;
+  const loanTerm       = parseFloat(document.getElementById('loanTerm').value)||30;
+  const interestRate   = parseFloat(document.getElementById('interestRate').value)/100||0.065;
+  const ltv            = parseFloat(document.getElementById('ltv').value)/100||0.90;
+  const closingCostPct = parseFloat(document.getElementById('closingCosts').value)/100||0.03;
+  const maxDTI         = parseFloat(document.getElementById('maxDTI').value)||0.40;
+
+  // --- CAPACITY CALC ---
+  const currentDTI = monthlyIncome > 0 ? (monthlyDebt + housingPayment) / monthlyIncome : 0;
+  const monthlyRate = interestRate / 12;
+  const n = loanTerm * 12;
+  const maxHousingFromDTI = (monthlyIncome * maxDTI) - monthlyDebt;
+  let maxLoan = 0;
+  if (monthlyRate > 0) {
+    maxLoan = maxHousingFromDTI * (Math.pow(1+monthlyRate,n)-1) / (monthlyRate * Math.pow(1+monthlyRate,n));
+  } else {
+    maxLoan = maxHousingFromDTI * n;
+  }
+  const purchasePower = ltv > 0 ? maxLoan / ltv : 0;
+  const cashToClose = purchasePower - maxLoan + purchasePower * closingCostPct;
+  const annualIncome = monthlyIncome * 12;
+
+  // Monthly payment on maxLoan
+  let monthlyPmt = 0;
+  if (monthlyRate > 0) monthlyPmt = maxLoan * monthlyRate * Math.pow(1+monthlyRate,n) / (Math.pow(1+monthlyRate,n)-1);
+
+  // --- LOGIC / FLAGS ---
+  const flags = [];
+  let eligibilityStatus = 'Ready to Proceed';
+  let eligColor = 'status-green';
+
+  // Active BK
+  if (activeBK === 'Yes') { eligibilityStatus = 'Cannot Proceed at This Time'; eligColor = 'status-red'; flags.push({text:'Active Bankruptcy — Cannot Proceed',type:'warn'}); }
+
+  // Citizenship
+  if (citizen === 'Foreign National') { eligibilityStatus = 'Additional Review Needed'; eligColor = 'status-amber'; flags.push({text:'Foreign National — Limited Programs',type:'warn'}); }
+  if (citizen === 'Non-Permanent Resident Alien') flags.push({text:'Non-Permanent Resident — verify visa/eligibility',type:'warn'});
+
+  // ID
+  const idStatus = citizen;
+  if (govtId === 'No') flags.push({text:'No Govt ID — Cannot Proceed Without Valid ID',type:'warn'});
+  if (govtId === 'Expired / Renewal') flags.push({text:'Expired ID — Renewal Needed Before Closing',type:'warn'});
+
+  // Bankruptcy discharged
+  if (dischBK === '< 1 Year') { flags.push({text:'BK Discharged <1 Year — Very Limited Options',type:'warn'}); if(eligibilityStatus==='Ready to Proceed') { eligibilityStatus='Additional Review Needed'; eligColor='status-amber'; } }
+
+  // Community property / joinder
+  const cpStates = ['Wisconsin','Arizona','Texas','California','Nevada','New Mexico','Idaho','Louisiana','Washington'];
+  const isCP = cpStates.includes(commState);
+  let joinder = '';
+  if (isCP && marital === 'Married') {
+    if (commState === 'Wisconsin') joinder = 'Acknowledgment of Debt by Non-Mortgaging Spouse required';
+    else joinder = `${commState} is a community property state — spousal rights may impact title/loan structure`;
+    flags.push({text:joinder, type:'info'});
+  }
+
+  // Interested party
+  if (intParty === 'Yes') flags.push({text:'≥25% Interested Party — Additional Docs Required',type:'warn'});
+
+  // Help type
+  if (bHelp === 'Gift Funds Only') flags.push({text:'Gift Funds Only — Helps Assets, Not Income',type:'info'});
+  if (bHelp === 'Co-Borrower (on Loan)') flags.push({text:'Co-Borrower: Income & debts of both must be included',type:'info'});
+  if (bHelp === 'Non-Occupant Co-Borrower') flags.push({text:'Non-Occupant Co-Borrower — Additional Review Required',type:'info'});
+  if (bHelp === 'Guarantor / Co-Signer') flags.push({text:'Guarantor — Limited structures, Review Required',type:'info'});
+
+  // Marital + non-mortgaging spouse
+  if (marital === 'Married' && spouseLoan !== 'Yes') flags.push({text:'Married + Non-Mortgaging Spouse — Spouse obligations may still be reviewed per state guidelines',type:'info'});
+
+  // REO
+  if (reo === 'Own 1+ Units') flags.push({text:'Multiple properties owned — REO Schedule Required',type:'warn'});
+
+  // Income / docs
+  let incomeStatusText = '';
+  let incomeStatusClass = 'status-green';
+  if (incType === 'Variable') { incomeStatusText = 'Variable Income — Stabilization Review Required'; incomeStatusClass = 'status-amber'; flags.push({text:'Variable Income — 2-year averaging may apply',type:'warn'}); }
+  else if (incType === 'Self-Employed') { incomeStatusText = 'Self-Employed — Tax Returns Required (2 Years)'; incomeStatusClass = 'status-amber'; }
+  else if (incType === 'Multiple Sources') { incomeStatusText = 'Multiple Income Sources — All Sources Must Be Documented'; incomeStatusClass = 'status-amber'; }
+  else incomeStatusText = 'Employed — Standard Documentation';
+
+  if (incomeDocs === 'No') { flags.push({text:'No Income Docs — Applicant Must Provide or Pay for Verification',type:'warn'}); }
+
+  // Credit color
+  const creditMap = {
+    'Exceptional': {label:'Premium Pricing / Ease of Approval', color:'status-green'},
+    'Very Good': {label:'Creditworthy / Competitive Pricing', color:'status-green'},
+    'Good': {label:'Acceptable / Constraints May Apply', color:'status-navy'},
+    'Fair': {label:'Additional Diligence / Fewer Options', color:'status-amber'},
+    'Poor': {label:'Non-Conventional / Special Program Required', color:'status-red'},
+    'No Score / Locked': {label:'Manual Review of Exceptional Circumstances', color:'status-red'}
+  };
+  const cInfo = creditMap[credit] || {label:'Review Required', color:'status-amber'};
+
+  // DTI check
+  if (currentDTI > maxDTI) { flags.push({text:`Current DTI ${pct(currentDTI)} exceeds selected max ${pct(maxDTI)}`,type:'warn'}); }
+
+  // --- BUILD DOCS ---
+  const docs = [];
+  docs.push({icon:'📄', text:'Government-Issued Photo ID'});
+  if (incomeDocs === 'Yes' || incomeDocs === 'Unsure') {
+    if (incType === 'Employed') docs.push({icon:'💵', text:'Most Recent 30 Days Pay Stubs'});
+    if (incType === 'Self-Employed' || incType === 'Multiple Sources') { docs.push({icon:'📋', text:'2 Years Most Recent Tax Returns'}); docs.push({icon:'📊', text:'YTD Profit & Loss Statement (Self-Employed)'}); }
+    if (incType === 'Variable') { docs.push({icon:'📋', text:'2 Years Most Recent Tax Returns'}); docs.push({icon:'💵', text:'Most Recent 30 Days Pay Stubs'}); }
+  } else {
+    docs.push({icon:'⚠️', text:'Income Documentation — Must Be Provided or Verified'});
+  }
+  docs.push({icon:'🏦', text:'2 Months Most Recent Bank Statements'});
+  if (assetType !== 'Bank Account') docs.push({icon:'📈', text:`Verification of Asset: ${assetType}`});
+  if (reo === 'Own 1+ Units') docs.push({icon:'🏢', text:'REO Schedule (All Owned Properties)'});
+  if (isCP && marital === 'Married' && spouseLoan !== 'Yes') docs.push({icon:'📝', text:'Non-Mortgaging Spouse Acknowledgment & Debts'});
+  if (incType === 'Self-Employed') docs.push({icon:'📋', text:'Business Financials / Entity Docs (if applicable)'});
+  if (bHelp === 'Gift Funds Only') docs.push({icon:'🎁', text:'Gift Letter & Donor Bank Statement'});
+  if (bHelp === 'Co-Borrower (on Loan)') docs.push({icon:'👥', text:'Co-Borrower Full Application, Income & CR'});
+
+  // --- INVESTOR CALC ---
+  const invPurchase  = parseFloat(document.getElementById('invPurchase').value)||0;
+  const invRent      = parseFloat(document.getElementById('invRent').value)||0;
+  const invVacancy   = parseFloat(document.getElementById('invVacancy').value)/100||0;
+  const invTaxes     = parseFloat(document.getElementById('invTaxes').value)||0;
+  const invInsurance = parseFloat(document.getElementById('invInsurance').value)||0;
+  const invMaint     = parseFloat(document.getElementById('invMaint').value)||0;
+  const invMgmt      = parseFloat(document.getElementById('invMgmt').value)||0;
+  const invOther     = parseFloat(document.getElementById('invOther').value)||0;
+  const invLoan      = parseFloat(document.getElementById('invLoan').value)||0;
+  const invRate      = parseFloat(document.getElementById('invRate').value)/100||0.065;
+  const invTermY     = parseFloat(document.getElementById('invTerm').value)||30;
+
+  const grossRent    = invRent * 12;
+  const vacancyLoss  = grossRent * invVacancy;
+  const effectiveInc = grossRent - vacancyLoss;
+  const totalExp     = invTaxes + invInsurance + invMaint + invMgmt + invOther;
+  const noi          = effectiveInc - totalExp;
+  const invMR        = invRate / 12;
+  const invN         = invTermY * 12;
+  let debtService = 0;
+  if (invMR > 0 && invLoan > 0) {
+    const pmt = invLoan * invMR * Math.pow(1+invMR,invN) / (Math.pow(1+invMR,invN)-1);
+    debtService = pmt * 12;
+  }
+  const dscr = debtService > 0 ? noi / debtService : 0;
+
+  // --- AMORTIZATION on maxLoan ---
+  const amortRows = [];
+  let bal = maxLoan;
+  for (let m = 1; m <= n && bal > 0.01; m++) {
+    const interest = bal * monthlyRate;
+    const principal = monthlyPmt - interest;
+    const ending = Math.max(bal - principal, 0);
+    amortRows.push([m, bal, monthlyPmt, interest, principal, ending]);
+    bal = ending;
+  }
+
+  // --- RENDER ---
+  document.getElementById('out-date').innerHTML = `<span>Date: <strong>${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</strong></span>`;
+
+  // Profile
+  const profItems = [
+    ['Borrower Type', bType], ['Borrower Help', bHelp], ['Real Estate Owned', reo],
+    ['Income Type', incType], ['Desired Occupancy', occupancy], ['Credit Profile', `${credit} — ${cInfo.label}`],
+    ['Citizenship', citizen], ['Community State', commState]
+  ];
+  document.getElementById('out-profile').innerHTML = profItems.map(([l,v])=>`
+    <div class="profile-item"><div class="pi-label">${l}</div><div class="pi-value">${v}</div></div>`).join('');
+
+  // Eligibility
+  document.getElementById('out-eligibility').innerHTML = `
+    <span class="status-badge ${eligColor}">${eligibilityStatus}</span>
+    <span class="status-badge ${cInfo.color}" style="margin-left:10px">Credit: ${credit}</span>
+    ${intParty==='Yes'?'<span class="status-badge status-amber" style="margin-left:10px">Interested Party Flag</span>':''}
+  `;
+
+  // Flags
+  if (flags.length === 0) {
+    document.getElementById('flags-section').style.display = 'none';
+  } else {
+    document.getElementById('flags-section').style.display = 'block';
+    document.getElementById('out-flags').innerHTML = flags.map(f=>`
+      <div class="flag-chip ${f.type==='info'?'info':''}">
+        ${f.type==='warn'?'⚠️':'ℹ️'} ${f.text}
+      </div>`).join('');
+  }
+
+  // Income status
+  document.getElementById('out-income-status').innerHTML = `<span class="status-badge ${incomeStatusClass}">${incomeStatusText}</span>`;
+
+  // Capacity
+  document.getElementById('out-capacity').innerHTML = `
+    <div class="cap-box"><div class="cb-label">Monthly Income</div><div class="cb-value">${fmt(monthlyIncome)}</div></div>
+    <div class="cap-box"><div class="cb-label">Monthly Debts</div><div class="cb-value">${fmt(monthlyDebt)}</div></div>
+    <div class="cap-box"><div class="cb-label">Current DTI</div><div class="cb-value">${pct(currentDTI)}</div></div>
+    <div class="cap-box"><div class="cb-label">Max DTI (Product)</div><div class="cb-value">${pct(maxDTI)}</div></div>
+    <div class="cap-box highlight"><div class="cb-label">Est. Loan Amount</div><div class="cb-value">${fmt(maxLoan)}</div></div>
+    <div class="cap-box highlight"><div class="cb-label">Purchase Power</div><div class="cb-value">${fmt(purchasePower)}</div></div>
+    <div class="cap-box"><div class="cb-label">Monthly P&amp;I</div><div class="cb-value">${fmtD(monthlyPmt)}</div></div>
+    <div class="cap-box"><div class="cb-label">Cash to Close (est.)</div><div class="cb-value">${fmt(cashToClose)}</div></div>
+  `;
+
+  // Docs
+  document.getElementById('out-docs').innerHTML = docs.map(d=>`<li><span class="di">${d.icon}</span>${d.text}</li>`).join('');
+
+  // Investor
+  const dscrClass = dscr >= 1.25 ? 'dscr-green' : 'dscr-red';
+  document.getElementById('out-investor').innerHTML = `
+    <div class="inv-box"><div class="ib-label">Gross Annual Rent</div><div class="ib-value">${fmt(grossRent)}</div></div>
+    <div class="inv-box"><div class="ib-label">Vacancy Loss</div><div class="ib-value">${fmt(vacancyLoss)}</div></div>
+    <div class="inv-box"><div class="ib-label">Effective Income</div><div class="ib-value">${fmt(effectiveInc)}</div></div>
+    <div class="inv-box"><div class="ib-label">Total Expenses</div><div class="ib-value">${fmt(totalExp)}</div></div>
+    <div class="inv-box"><div class="ib-label">Net Operating Income</div><div class="ib-value">${fmt(noi)}</div></div>
+    <div class="inv-box"><div class="ib-label">Annual Debt Service</div><div class="ib-value">${fmt(debtService)}</div></div>
+    <div class="inv-box" style="grid-column:1/-1; background:var(--navy)">
+      <div class="ib-label" style="color:var(--gold)">DSCR — Debt Service Coverage Ratio</div>
+      <div class="ib-value dscr-highlight ${dscrClass}">${dscr.toFixed(2)}x</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">${dscr>=1.25?'✅ Meets typical DSCR requirement (≥1.25)':dscr>=1.0?'⚠️ Cash-flow positive but below 1.25 threshold':'❌ Negative DSCR — Property does not cover debt service'}</div>
+    </div>
+  `;
+
+  // Amort summary
+  document.getElementById('out-amort-summary').innerHTML = `
+    <div class="capacity-grid" style="margin-bottom:12px">
+      <div class="cap-box"><div class="cb-label">Loan Amount</div><div class="cb-value">${fmt(maxLoan)}</div></div>
+      <div class="cap-box"><div class="cb-label">Rate</div><div class="cb-value">${(interestRate*100).toFixed(3)}%</div></div>
+      <div class="cap-box"><div class="cb-label">Term</div><div class="cb-value">${loanTerm} yrs</div></div>
+      <div class="cap-box highlight"><div class="cb-label">Monthly Payment</div><div class="cb-value">${fmtD(monthlyPmt)}</div></div>
+    </div>
+  `;
+
+  // Build table
+  let tHtml = `<thead><tr><th>Month</th><th>Beginning Bal</th><th>Payment</th><th>Interest</th><th>Principal</th><th>Ending Bal</th></tr></thead><tbody>`;
+  amortRows.forEach(r => {
+    tHtml += `<tr><td>${r[0]}</td><td>${fmtD(r[1])}</td><td>${fmtD(r[2])}</td><td>${fmtD(r[3])}</td><td>${fmtD(r[4])}</td><td>${fmtD(r[5])}</td></tr>`;
+  });
+  tHtml += '</tbody>';
+  document.getElementById('amort-table').innerHTML = tHtml;
+  document.getElementById('amort-table-wrap').style.display = 'none';
+  document.querySelector('.amort-toggle').textContent = '▼ Show Full Amortization Table';
+
+  document.getElementById('output-section').style.display = 'block';
+  document.getElementById('output-section').scrollIntoView({behavior:'smooth'});
+}
+
+function toggleAmort() {
+  const wrap = document.getElementById('amort-table-wrap');
+  const btn = document.querySelector('.amort-toggle');
+  if (wrap.style.display === 'none') { wrap.style.display = 'block'; btn.textContent = '▲ Hide Amortization Table'; }
+  else { wrap.style.display = 'none'; btn.textContent = '▼ Show Full Amortization Table'; }
+}
+</script>
+</body>
+</html>
